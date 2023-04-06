@@ -17,11 +17,17 @@
           Add Template
         </button>
       </div>
-      <div>
-        <CollectionList :templates="templates" @edit-type="editType" />
-      </div>
+
       <div v-if="!templates || !templates.length">
         <CollectionEmptyState />
+      </div>
+      <div v-else>
+        <CollectionList
+          :templates="templates"
+          @edit-type="editType"
+          @delete-template="deleteTemplate"
+          :key="renderList"
+        />
       </div>
     </div>
     <div class="row-span-3 col-span-4 bg-white h-[calc(100vh-150px)]">
@@ -30,6 +36,7 @@
         v-else
         :template="template"
         @edit-template="editTemplate"
+        :key="render"
       />
     </div>
   </div>
@@ -52,14 +59,18 @@ const template = ref({
   body: "Editbody",
 });
 const type = ref("add");
+const render = ref(0);
+const renderList = ref(0);
 console.log("this.url", props.url);
+
 const { data: items } = await useAuthLazyFetch(props.url, {});
 templates.value = items.value;
 
 function editType(data: object) {
-    console.log("this.data",data)
+  console.log("this.data", data);
   type.value = "edit";
   template.value = data;
+  render.value++;
 }
 
 async function addTemplate(data: object) {
@@ -82,15 +93,27 @@ async function addTemplate(data: object) {
 }
 
 async function editTemplate(data: object) {
-  console.log("this.add", data, props.addUrl);
+  console.log("this.add", data, props.editUrl);
   let body = data;
-  await useAuthLazyFetchPut(props.editUrl, {
+  await useAuthLazyFetchPut(`${props.editUrl}${data.uid}`, {
     body: JSON.stringify(body),
   });
 
-  templates.value = (await useAuthLazyFetch(`${props.editUrl}daab5e98-ef45-4e00-93b7-2aee057de10f`, {})).data;
+  const { data: response } = await useAuthLazyFetch(props.url, {});
+  templates.value = response.value;
+  console.log("this.template", templates.value);
+  renderList.value++;
 }
 
+async function deleteTemplate(uid: string) {
+  console.log("this.add", uid, props.editUrl);
+  await useAuthLazyFetchDelete(`${props.deleteUrl}${uid}`, {});
+
+  const { data: response } = await useAuthLazyFetch(props.url, {});
+  templates.value = response.value;
+  console.log("this.template", templates.value);
+  renderList.value++;
+}
 // // Add Template to the template data
 // const addTemplate = (data: any) => {
 //   templates.value.push({

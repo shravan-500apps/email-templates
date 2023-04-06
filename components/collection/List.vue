@@ -24,7 +24,7 @@
         stroke-width="1.5"
         stroke="currentColor"
         class="w-6 h-6"
-        @click="emit('edit-type',template)"
+        @click="emit('edit-type',template.uid)"
       >
         <path
           stroke-linecap="round"
@@ -39,6 +39,7 @@
         stroke-width="1.5"
         stroke="currentColor"
         class="w-6 h-6"
+        @click="emit('delete-template',template)"
       >
         <path
           stroke-linecap="round"
@@ -58,5 +59,5 @@ defineProps({
     default: () => [],
   },
 });
-const emit = defineEmits(['edit-type'])
+const emit = defineEmits(['edit-type','delete-template'])
 </script>
